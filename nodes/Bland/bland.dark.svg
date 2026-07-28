@@ -1,13 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="aquamarine"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu">
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-    <rect x="9" y="9" width="6" height="6"></rect>
-    <line x1="9" y1="1" x2="9" y2="4"></line>
-    <line x1="15" y1="1" x2="15" y2="4"></line>
-    <line x1="9" y1="20" x2="9" y2="23"></line>
-    <line x1="15" y1="20" x2="15" y2="23"></line>
-    <line x1="20" y1="9" x2="23" y2="9"></line>
-    <line x1="20" y1="14" x2="23" y2="14"></line>
-    <line x1="1" y1="9" x2="4" y2="9"></line>
-    <line x1="1" y1="14" x2="4" y2="14"></line>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"
+    preserveAspectRatio="xMidYMid meet">
+    <g transform="translate(0,400) scale(0.1,-0.1)" fill="#ffffff" stroke="none">
+        <path d="M0 2000 l0 -2000 2000 0 2000 0 0 2000 0 2000 -2000 0 -2000 0 0
+-2000z m1688 1083 l2 -163 443 0 c359 0 454 -3 506 -15 179 -43 337 -188 397
+-365 14 -42 19 -85 19 -180 l0 -125 -1025 0 -1025 0 -3 495 c-1 272 0 501 3
+508 3 10 77 12 342 10 l338 -3 3 -162z m1370 -1643 c3 -126 -7 -181 -55 -280
+-66 -137 -220 -259 -365 -289 -36 -8 -304 -10 -843 -9 l-790 3 -3 330 c-2 302
+-1 331 15 343 13 9 230 12 1027 10 l1011 -3 3 -105z"/>
+    </g>
 </svg>
