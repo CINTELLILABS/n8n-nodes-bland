@@ -1,0 +1,49 @@
+{
+  "name": "n8n-nodes-bland",
+  "version": "0.1.0",
+  "description": "n8n community node to send and manage Bland AI phone calls",
+  "license": "MIT",
+  "homepage": "https://github.com/CINTELLILABS/n8n-nodes-bland#readme",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "bland",
+    "bland-ai",
+    "voice",
+    "phone",
+    "telephony",
+    "ai-calls"
+  ],
+  "author": { "name": "finnatbland", "email": "finn@bland.ai" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CINTELLILABS/n8n-nodes-bland.git"
+  },
+  "scripts": {
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
+  },
+  "files": ["dist", "!dist/tsconfig.tsbuildinfo"],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": ["dist/credentials/BlandApi.credentials.js"],
+    "nodes": [
+      "dist/nodes/Bland/Bland.node.js",
+      "dist/nodes/BlandTrigger/BlandTrigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "*",
+    "eslint": "9.32.0",
+    "prettier": "3.6.2",
+    "release-it": "^19.0.4",
+    "typescript": "5.9.2"
+  },
+  "peerDependencies": { "n8n-workflow": "*" }
+}
