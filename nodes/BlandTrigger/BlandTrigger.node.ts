@@ -3,6 +3,7 @@ import {
 	NodeConnectionTypes,
 	NodeOperationError,
 	type IDataObject,
+	type IHookFunctions,
 	type INodeType,
 	type INodeTypeDescription,
 	type IWebhookFunctions,
@@ -27,6 +28,8 @@ const EVENT_CATEGORIES = [
 	'webhook',
 ] as const;
 
+const BASE_URL = 'https://api.bland.ai';
+
 /** In-call events carry `category`; post-call records never do. */
 const isInCallEvent = (body: IDataObject): boolean => typeof body.category === 'string';
 
@@ -38,16 +41,24 @@ const signaturesMatch = (a: string, b: string): boolean => {
 	return timingSafeEqual(bufA, bufB);
 };
 
-// Two rules are suppressed here, both deliberately:
-//
-// `node-usable-as-tool`: an AI agent can't invoke a trigger, and the property's
-// type only permits `true`, so there is no way to express "not a tool".
-//
-// `webhook-lifecycle-complete`: a Bland account has a single default webhook
-// URL, so registering one automatically would replace an account-wide setting
-// shared by every call. This node therefore exposes its URL for the user to
-// paste into a Send operation's Webhook URL field instead of registering itself.
-// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool, @n8n/community-nodes/webhook-lifecycle-complete
+const getAccountWebhookUrl = async (context: IHookFunctions): Promise<string | null> => {
+	const response = (await context.helpers.httpRequestWithAuthentication.call(context, 'blandApi', {
+		method: 'GET',
+		url: `${BASE_URL}/user/getCurrentWebhook`,
+		json: true,
+	})) as { webhook_url?: string | null };
+	return response?.webhook_url ?? null;
+};
+
+const setAccountWebhookUrl = async (context: IHookFunctions, url: string): Promise<void> => {
+	await context.helpers.httpRequestWithAuthentication.call(context, 'blandApi', {
+		method: 'POST',
+		url: `${BASE_URL}/user/updateCurrentWebhook`,
+		body: { webhook_url: url },
+		json: true,
+	});
+};
+
 export class BlandTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Bland Trigger',
@@ -60,12 +71,16 @@ export class BlandTrigger implements INodeType {
 		defaults: {
 			name: 'Bland Trigger',
 		},
+		// An AI agent can't invoke a webhook trigger, but the property is required.
+		// Setting it makes n8n generate a "Bland Trigger Tool" variant, so that
+		// variant is hidden from the nodes panel rather than confusing users.
+		usableAsTool: { replacements: { hidden: true } },
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'blandApi',
-				// Only needed to verify signatures, which requires the signing secret.
+				// Needed to verify signatures, and to manage the account webhook.
 				required: false,
 			},
 		],
@@ -80,7 +95,7 @@ export class BlandTrigger implements INodeType {
 		properties: [
 			{
 				displayName:
-					'A Bland account has one default webhook URL, so this node does not register itself. Copy the Production URL above into the <b>Webhook URL</b> field of a Bland node\'s Send operation, or set it as your account default in the Bland dashboard.',
+					'A Bland account has one default webhook URL, so this node does not register itself unless you ask it to. Copy the Production URL above into the <b>Webhook URL</b> field of a Bland node\'s Send operation, or set it as your account default in the Bland dashboard.',
 				name: 'setupNotice',
 				type: 'notice',
 				default: '',
@@ -131,7 +146,78 @@ export class BlandTrigger implements INodeType {
 				description:
 					'Whether to reject requests whose X-Webhook-Signature does not match. Requires the Webhook Signing Secret on the Bland credential.',
 			},
+			{
+				displayName: 'Manage Account Default Webhook',
+				name: 'manageAccountWebhook',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to point your Bland account default webhook at this node automatically. A Bland account stores only ONE default webhook, so turning this on replaces whatever is currently set and affects every call that does not specify its own webhook. Requires an https n8n URL.',
+			},
+			{
+				displayName:
+					'Bland cannot clear a default webhook once set. On deactivation this node restores the URL that was there before, but if none was set the account default stays pointed at n8n.',
+				name: 'manageAccountWebhookNotice',
+				type: 'notice',
+				default: '',
+				displayOptions: {
+					show: {
+						manageAccountWebhook: [true],
+					},
+				},
+			},
 		],
+	};
+
+	webhookMethods = {
+		default: {
+			async checkExists(this: IHookFunctions): Promise<boolean> {
+				const manage = this.getNodeParameter('manageAccountWebhook', false) as boolean;
+				// In manual mode nothing is registered remotely, so report it as already
+				// present to stop n8n from calling create().
+				if (!manage) return true;
+
+				return (await getAccountWebhookUrl(this)) === this.getNodeWebhookUrl('default');
+			},
+
+			async create(this: IHookFunctions): Promise<boolean> {
+				const manage = this.getNodeParameter('manageAccountWebhook', false) as boolean;
+				if (!manage) return true;
+
+				const webhookUrl = this.getNodeWebhookUrl('default');
+				if (!webhookUrl?.startsWith('https://')) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'Bland only accepts https webhook URLs, so the account default cannot be pointed at this n8n instance',
+						{
+							description:
+								'This happens on a local or http-only n8n. Turn off "Manage Account Default Webhook" and paste the Production URL into the Bland node\'s Webhook URL field instead.',
+						},
+					);
+				}
+
+				// Remember the existing value so delete() can put it back.
+				this.getWorkflowStaticData('node').previousWebhookUrl = await getAccountWebhookUrl(this);
+				await setAccountWebhookUrl(this, webhookUrl);
+				return true;
+			},
+
+			async delete(this: IHookFunctions): Promise<boolean> {
+				const manage = this.getNodeParameter('manageAccountWebhook', false) as boolean;
+				if (!manage) return true;
+
+				const staticData = this.getWorkflowStaticData('node');
+				const previous = staticData.previousWebhookUrl;
+				delete staticData.previousWebhookUrl;
+
+				// The API rejects an empty webhook_url, so an account that had no default
+				// before cannot be restored to that state.
+				if (typeof previous === 'string' && previous.startsWith('https://')) {
+					await setAccountWebhookUrl(this, previous);
+				}
+				return true;
+			},
+		},
 	};
 
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {

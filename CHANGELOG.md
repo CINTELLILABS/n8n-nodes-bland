@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.0
+
+Changes required to pass n8n's community node verification scan, which runs its
+own ESLint config and ignores inline disable comments.
+
+### Bland Trigger
+
+- Added **Manage Account Default Webhook** (default off). When enabled, the node
+  points your Bland account default webhook at itself on activation and restores
+  the previous URL on deactivation. Left off, behaviour is unchanged and no
+  account setting is touched.
+- Note that Bland cannot clear a default webhook once set, so deactivating with
+  no previous URL leaves the account default pointed at n8n.
+- Declared `usableAsTool` because the verification scan requires it. The tool
+  variant it generates is hidden from the nodes panel, since an AI agent cannot
+  invoke a webhook trigger.
+
 ## 0.1.0
 
 Initial release.

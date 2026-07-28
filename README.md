@@ -64,6 +64,9 @@ Options:
   to accept all.
 - **Verify Signature** — reject requests whose `X-Webhook-Signature` doesn't match. Requires the
   Webhook Signing Secret on the credential.
+- **Manage Account Default Webhook** — off by default. When on, the node points your Bland account
+  default webhook at itself when the workflow is activated, and restores the previous URL when it's
+  deactivated. See the caveat under [Receiving call events](#receiving-call-events).
 
 ## Credentials
 
@@ -76,10 +79,14 @@ dashboard.
 
 ## Receiving call events
 
-A Bland account has one default webhook URL, so the trigger node does **not** register itself —
-doing so would replace an account-wide setting shared by every call.
+A Bland account has one default webhook URL, so by default the trigger node does **not** register
+itself — doing so would replace an account-wide setting shared by every call.
 
-To wire it up:
+You can opt in with **Manage Account Default Webhook**, but note two limits: Bland only accepts
+`https://` URLs, and it cannot clear a default webhook once one is set. Deactivating restores the
+URL that was there before, but if none was set, the account default stays pointed at n8n.
+
+To wire it up manually instead:
 
 1. Add a **Bland Trigger** node and copy its Production URL.
 2. Paste that URL into the **Webhook URL** field under Additional Fields on a **Bland → Send**
@@ -110,6 +117,10 @@ Note that if you self-host n8n, avoid Node.js 26 — some n8n dependencies fail 
 - [Bland documentation](https://docs.bland.ai)
 
 ## Version history
+
+### 0.2.0
+
+Added the optional **Manage Account Default Webhook** setting to the trigger. See CHANGELOG.md.
 
 ### 0.1.0
 
