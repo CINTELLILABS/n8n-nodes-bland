@@ -1,5 +1,5 @@
 {
-	"node": "@cintellilabs/n8n-nodes-bland.blandTrigger",
+	"node": "@blandsdk/n8n-nodes-bland.blandTrigger",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Communication"],

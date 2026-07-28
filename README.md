@@ -1,4 +1,4 @@
-# @cintellilabs/n8n-nodes-bland
+# @blandsdk/n8n-nodes-bland
 
 This is an n8n community node. It lets you use [Bland](https://www.bland.ai/) in your n8n workflows.
 
@@ -22,7 +22,7 @@ transcript, recording, and analysis.
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation, using the package name:
 
 ```
-@cintellilabs/n8n-nodes-bland
+@blandsdk/n8n-nodes-bland
 ```
 
 ## Operations
