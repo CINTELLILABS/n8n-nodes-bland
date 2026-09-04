@@ -1,5 +1,6 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
 import { callDescription } from './resources/call';
+import { generatedDescriptions, generatedResources } from './resources/generated';
 
 export class Bland implements INodeType {
 	description: INodeTypeDescription = {
@@ -35,10 +36,17 @@ export class Bland implements INodeType {
 						name: 'Call',
 						value: 'call',
 					},
+					// BEGIN BLAND SYNC GENERATED RESOURCES
+					/* eslint n8n-nodes-base/node-param-resource-with-plural-option: off -- the rule cannot parse a spread element */
+					...generatedResources,
+					// END BLAND SYNC GENERATED RESOURCES
 				],
 				default: 'call',
 			},
 			...callDescription,
+			// BEGIN BLAND SYNC GENERATED PROPERTIES
+			...generatedDescriptions,
+			// END BLAND SYNC GENERATED PROPERTIES
 		],
 	};
 }
