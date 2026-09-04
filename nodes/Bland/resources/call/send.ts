@@ -227,6 +227,34 @@ export const callSendDescription: INodeProperties[] = [
 					},
 				},
 			},
+			// BEGIN BLAND SYNC GENERATED OPTIONAL FIELDS
+			{
+				displayName: 'Persona ID',
+				name: 'personaId',
+				type: 'string',
+				default: '',
+				description: 'The ID of the persona to use for the call',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'persona_id',
+					},
+				},
+			},
+			{
+				displayName: 'Precall DTMF Sequence',
+				name: 'precallDtmfSequence',
+				type: 'string',
+				default: '',
+				description: 'A sequence of DTMF digits that will be played before the call starts. Acceptable characters are 0-9, *, #, and w, where w is a pause of 0.5 seconds.',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'precall_dtmf_sequence',
+					},
+				},
+			},
+			// END BLAND SYNC GENERATED OPTIONAL FIELDS
 			{
 				displayName: 'Record',
 				name: 'record',
@@ -270,6 +298,21 @@ export const callSendDescription: INodeProperties[] = [
 					},
 				},
 			},
+			// BEGIN BLAND SYNC GENERATED OPTIONAL FIELDS
+			{
+				displayName: 'Summary Prompt',
+				name: 'summaryPrompt',
+				type: 'string',
+				default: '',
+				description: '(Optional) Custom instructions for how the call summary should be generated after the call completes. Use this to provide specific guidance or context for the AI when writing the post-call summary. Maximum length: 2000 characters.',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'summary_prompt',
+					},
+				},
+			},
+			// END BLAND SYNC GENERATED OPTIONAL FIELDS
 			{
 				displayName: 'Temperature',
 				name: 'temperature',
