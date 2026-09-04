@@ -1,6 +1,6 @@
 {
   "name": "@blandsdk/n8n-nodes-bland",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "n8n community node to send and manage Bland AI phone calls",
   "license": "MIT",
   "homepage": "https://github.com/CINTELLILABS/n8n-nodes-bland#readme",
